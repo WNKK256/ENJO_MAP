@@ -4,204 +4,239 @@
     <meta charset="utf-8">
     <title>Experimental Network Joint Open-source Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <!-- Import Mapbox GL JS  -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
-    <!-- OD route -->
-    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css"> -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <!-- Mapbox botton style -->
+    <link href="https://www.mapbox.com/base/latest/base.css" rel="stylesheet">
+    <!-- mapbox-gl-directions OD route -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
     <!-- Export map -->
     <link href='https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.css' rel='stylesheet' />
     <script src="https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.js"></script>
     <!-- Real time traffic -->
-    <script src='mapbox-gl-traffic.js'></script>
     <link href='mapbox-gl-traffic.css' rel='stylesheet' />
-    <!-- Distance measure -->
+    <script src='mapbox-gl-traffic.js'></script>
+    <!-- Drawing Related Mapbox draw, turf -->
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.css" type="text/css">
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #reset {position: absolute;bottom: 180px;left: 10px;z-index: 999;} /*Reset Button */
+        #directions_onoff {position: absolute;bottom: 20px;right: 10px;z-index: 999;} /*Directional API on/off Button */
+        #isochrone_onoff {position: absolute;bottom: 50px;right: 10px;z-index: 999;} /*Directional API on/off Button */
     </style>
 </head>
-<body>
 
-<!-- Distance measure -->
-<style>
-    .distance-container {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1;
-    }
-        
-    .distance-container > * {
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    font-size: 11px;
-    line-height: 18px;
-    display: block;
-    margin: 0;
-    padding: 5px 10px;
-    border-radius: 3px;
-    }
+<body>
+    <!-- Reset Button -->
+    <a href="#" id="reset" class="button fill-darken1">Reset</a>
+
+    <!-- Drawing Related -->
+    <style>
+        .calculation-box {
+        height:100px;
+        width: 280px;
+        position: absolute;
+        bottom: 70px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        text-align: center;
+        }
+         
+        p {
+        font-family: 'Open Sans';
+        margin: 0;
+        font-size: 15px;
+        }
     </style>
 
-<div id="map"></div>
-<div id="distance" class="distance-container"></div>
+    <!-- Create a container for the map -->
+    <div id="map"></div>
+    <div id='directions_onoff'>On / Off directions</div> <!-- Directional API on/off -->
+    <div id='isochrone_onoff'>On / Off isochrone</div> <!-- Isochrone API on/off -->
 
-<script>
-mapboxgl.accessToken = 'pk.eyJ1Ijoid25rayIsImEiOiJjbGlkemh1cHcwaDFrM2xxZjBoaHpiOHE2In0.T6oRN-g_-BlLaYFTpSjGQQ';
-    
-const map = new mapboxgl.Map({
-    container: 'map', // container ID
-    // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-    style: 'mapbox://styles/wnkk/clei5tjgh002301pnl9u6jod8?optimize=true', // style URL
-    center: [114.089536, 22.352856], // starting position [lng, lat]
-    zoom: 10.37 // starting zoom
-});
-    
-// Add zoom and rotation controls to the map.
-map.addControl(new mapboxgl.NavigationControl());
+    <!-- Drawing Related -->
+    <div class="calculation-box">
+        <p>Distance & Area of all Drawing.</p>
+        <div id="calculated-area-distance"></div>
+    </div>
 
-// Add a scale control to the map
-map.addControl(new mapboxgl.ScaleControl());
+    <script>
+        // Reset Botton
+        document.getElementById('reset').onclick = clearMap;
 
-//Add full screen control
-map.addControl(new mapboxgl.FullscreenControl());
+        // Add your Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1Ijoid25rayIsImEiOiJjbGlkemh1cHcwaDFrM2xxZjBoaHpiOHE2In0.T6oRN-g_-BlLaYFTpSjGQQ';
+        
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: 'mapbox://styles/wnkk/clei5tjgh002301pnl9u6jod8?optimize=true', // style URL
+            center: [114.089536, 22.352856], // starting position [lng, lat]
+            zoom: 10.37, // starting zoom
+            hash: true //zoom lat lon appear
+        });
+        
+        // Drawing Related
+        const draw = new MapboxDraw({
+            displayControlsDefault: true,
+        });
+        map.addControl(draw);
+ 
+        map.on('draw.create', updateArea);
+        map.on('draw.delete', updateArea);
+        map.on('draw.update', updateArea);
+        
+        function updateArea(e) {
+            const data = draw.getAll();
+            const answer = document.getElementById('calculated-area-distance');
+            if (data.features.length > 0) {
+                const area = turf.area(data);
+                const distance = turf.length(data, {units: 'kilometers'});
+                // Restrict the area to 2 decimal points.
+                const rounded_area = Math.round(area * 100) / 100;
+                const distance_cal = distance * 1000;
+                answer.innerHTML = `<p>Distance: <strong>${distance_cal.toFixed(2)}</strong> meters</p> <p>Area: <strong>${rounded_area}</strong> square meters</p>`;
+            } else {
+                answer.innerHTML = '';
+                if (e.type !== 'draw.delete')
+                    alert('Click the map to draw a polygon.');
+            }
+        }
+            
+        // Add zoom and rotation controls to the map.
+        map.addControl(new mapboxgl.NavigationControl());
 
-//Add navigation directions OD route
-// map.addControl(
-//     new MapboxDirections({
-//         accessToken: mapboxgl.accessToken,
-//         unit: 'metric',
-//     }),
-//     'top-left'
-// );
-    
-// Add Mapbox GL Traffic
-map.addControl(new MapboxTraffic());
+        // Add a scale control to the map
+        map.addControl(new mapboxgl.ScaleControl());
 
-// Add Mapbox GL Export
-map.addControl(new MapboxExportControl({
-    PageSize: Size.A2,
-    PageOrientation: PageOrientation.landscape,
-    Format: Format.PDF,
-    DPI: DPI[400],
-    Crosshair: true,
-    PrintableArea: true,
-}), 'top-right');
+        //Add full screen control
+        map.addControl(new mapboxgl.FullscreenControl());
+
+        // Add Mapbox GL Traffic
+        map.addControl(new MapboxTraffic());
+
+        // Add Mapbox GL Export
+        map.addControl(new MapboxExportControl({
+            PageSize: Size.A2,
+            PageOrientation: PageOrientation.landscape,
+            Format: Format.PDF,
+            DPI: DPI[400],
+            Crosshair: true,
+            PrintableArea: true,
+        }), 'top-right');
 
 
-// Add distance measure
-const distanceContainer = document.getElementById('distance');
-// GeoJSON object to hold our measurement features
-const geojson = {
-'type': 'FeatureCollection',
-'features': []
-};
- 
-// Used to draw a line between points
-const linestring = {
-'type': 'Feature',
-'geometry': {
-'type': 'LineString',
-'coordinates': []
-}
-};
- 
-map.on('load', () => {
-map.addSource('geojson', {
-'type': 'geojson',
-'data': geojson
-});
- 
-// Add styles to the map
-map.addLayer({
-id: 'measure-points',
-type: 'circle',
-source: 'geojson',
-paint: {
-'circle-radius': 5,
-'circle-color': '#000'
-},
-filter: ['in', '$type', 'Point']
-});
-map.addLayer({
-id: 'measure-lines',
-type: 'line',
-source: 'geojson',
-layout: {
-'line-cap': 'round',
-'line-join': 'round'
-},
-paint: {
-'line-color': '#000',
-'line-width': 2.5
-},
-filter: ['in', '$type', 'LineString']
-});
- 
-map.on('click', (e) => {
-const features = map.queryRenderedFeatures(e.point, {
-layers: ['measure-points']
-});
- 
-// Remove the linestring from the group
-// so we can redraw it based on the points collection.
-if (geojson.features.length > 1) geojson.features.pop();
- 
-// Clear the distance container to populate it with a new value.
-distanceContainer.innerHTML = '';
- 
-// If a feature was clicked, remove it from the map.
-if (features.length) {
-const id = features[0].properties.id;
-geojson.features = geojson.features.filter(
-(point) => point.properties.id !== id
-);
-} else {
-const point = {
-'type': 'Feature',
-'geometry': {
-'type': 'Point',
-'coordinates': [e.lngLat.lng, e.lngLat.lat]
-},
-'properties': {
-'id': String(new Date().getTime())
-}
-};
- 
-geojson.features.push(point);
-}
- 
-if (geojson.features.length > 1) {
-linestring.geometry.coordinates = geojson.features.map(
-(point) => point.geometry.coordinates
-);
- 
-geojson.features.push(linestring);
- 
-// Populate the distanceContainer with total distance
-const value = document.createElement('pre');
-const distance = turf.length(linestring);
-value.textContent = `Total distance: ${distance.toLocaleString()}km`;
-distanceContainer.appendChild(value);
-}
- 
-map.getSource('geojson').setData(geojson);
-});
-});
- 
-map.on('mousemove', (e) => {
-const features = map.queryRenderedFeatures(e.point, {
-layers: ['measure-points']
-});
-// Change the cursor to a pointer when hovering over a point on the map.
-// Otherwise cursor is a crosshair.
-map.getCanvas().style.cursor = features.length
-? 'pointer'
-: 'crosshair';
-});
-</script>
+        //Add Isochrone API
+        
+        map.on('load', function(){
+            var Isochrone_lon = 0;
+            var Isochrone_lat = 0;
+            
+            const marker = new mapboxgl.Marker({
+            'color': '#314ccd'
+            });
+
+            var isochronelement = document.getElementById("isochrone_onoff")
+            
+            isochronelement.addEventListener('click', function(){
+                if (map.getLayer("isoLayer")) {
+
+                    marker.remove();
+                    map.removeLayer('isoLayer');
+                    map.removeSource('iso');
+                    Isochrone_lon = 0;
+                    Isochrone_lat = 0
+                    
+                } else {
+                    var {lng, lat} = map.getCenter(); // Access longitude and latitude values directly.
+                    
+                    // Create variables to use in getIso()
+                    const urlBase = 'https://api.mapbox.com/isochrone/v1/mapbox/';
+                    Isochrone_lat =  lat;
+                    Isochrone_lon =  lng;
+                    let profile = 'driving';
+                    // let minutes = 15;
+
+                    // Set up a marker that you can use to show the query's coordinates
+                    // Create a LngLat object to use in the marker initialization
+                    // https://docs.mapbox.com/mapbox-gl-js/api/#lnglat
+                    const arr = [Isochrone_lon, Isochrone_lat];
+                    const LngLat = mapboxgl.LngLat.convert(arr);
+
+                    // Create a function that sets up the Isochrone API query then makes a fetch call
+                    async function getIso() {
+                        const query = await fetch(
+                            `${urlBase}${profile}/${Isochrone_lon}%2C${Isochrone_lat}?contours_minutes=5%2C10%2C15%2C20&contours_colors=252525%2C636363%2C969696%2Ccccccc&polygons=true&denoise=0&generalize=0&access_token=${mapboxgl.accessToken}`,
+                            { method: 'GET' }
+                        );
+                        const data = await query.json();
+                        // Set the 'iso' source's data to what's returned by the API query
+                        map.getSource('iso').setData(data);
+                    }
+
+                    map.addSource('iso', {
+                        type: 'geojson',
+                        data: {
+                            'type': 'FeatureCollection',
+                            'features': []
+                        }
+                    });
+                    
+                    map.addLayer(
+                        {
+                            'id': 'isoLayer',
+                            'type': 'fill',
+                            'source': 'iso',
+                            'layout': {},
+                            'paint': {
+                                // 'fill-color': '#0ceb26',
+                                'fill-opacity': 0.3
+                            }
+                        },
+                        'poi-label'
+                        );
+                        
+                    // Initialize the marker at the query coordinates
+                    marker.setLngLat(LngLat).addTo(map);
+                    
+                    // Make the API call
+                    getIso();
+                }
+            });
+        });
+
+        //Add navigation directions OD route
+        map.on('load', function(){
+            
+            var directions = new MapboxDirections({
+                accessToken: mapboxgl.accessToken,
+                unit: 'metric',
+            })
+
+            var directionsElement = document.getElementById("directions_onoff")
+
+            directionsElement.addEventListener('click', function(){
+                if (document.getElementsByClassName('mapboxgl-ctrl-directions').length == 0) {
+                    map.addControl(directions,'top-left');
+                } else {
+                    map.removeControl(directions,'top-left');
+                }
+            });
+        });
+
+        // Reset botton function
+        function clearMap() {
+            draw.deleteAll()
+            updateArea()
+        }
+
+    </script>
 
 </body>
 </html>
