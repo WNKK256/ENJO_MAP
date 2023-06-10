@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Experimental Network Joint Open-source Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- Import Github Fork Ribbon CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
     <!-- Import Mapbox GL JS  -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
@@ -32,10 +34,14 @@
 </head>
 
 <body>
+    <!-- Fork Me Github -->
+    <a class="github-fork-ribbon left-top" href="https://github.com/WNKK256/ENJO_MAP" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
     <!-- Reset Button -->
     <a href="#" id="reset" class="button fill-darken1">Reset</a>
 
-    <!-- Drawing Related -->
+    <!-- Fork Me Github style -->
+    <style>.github-fork-ribbon:before { background-color: #ff0000; }</style>
+    <!-- Drawing Related style-->
     <style>
         .calculation-box {
         height:100px;
@@ -54,9 +60,37 @@
         font-size: 15px;
         }
     </style>
+    <!-- Switch style box -->
+    <style>
+        #menu {
+        position: absolute;
+        top:0%;
+        Width:100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+        }
+        </style>
 
     <!-- Create a container for the map -->
     <div id="map"></div>
+    <div id="menu">
+        <input id="wnkk/clei5tjgh002301pnl9u6jod8" type="radio" name="rtoggle" value="ENJO-Map" checked="checked">
+        <label for="wnkk/clei5tjgh002301pnl9u6jod8">ENJO-MAP</label>
+        <!-- See a list of Mapbox-hosted public styles at -->
+        <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+        <input id="mapbox/satellite-streets-v12" type="radio" name="rtoggle" value="satellite">
+        <label for="mapbox/satellite-streets-v12">satellite streets</label>
+        <input id="mapbox/light-v11" type="radio" name="rtoggle" value="light">
+        <label for="mapbox/light-v11">light</label>
+        <input id="mapbox/dark-v11" type="radio" name="rtoggle" value="dark">
+        <label for="mapbox/dark-v11">dark</label>
+        <input id="mapbox/streets-v12" type="radio" name="rtoggle" value="streets">
+        <label for="mapbox/streets-v12">streets</label>
+        <input id="mapbox/outdoors-v12" type="radio" name="rtoggle" value="outdoors">
+        <label for="mapbox/outdoors-v12">outdoors</label>
+        </div>
     <div id='directions_onoff'>On / Off directions</div> <!-- Directional API on/off -->
     <div id='isochrone_onoff'>On / Off isochrone</div> <!-- Isochrone API on/off -->
 
@@ -81,7 +115,16 @@
             zoom: 10.37, // starting zoom
             hash: true //zoom lat lon appear
         });
+
+        const layerList = document.getElementById('menu');
+        const inputs = layerList.getElementsByTagName('input');
         
+        for (const input of inputs) {
+            input.onclick = (layer) => {
+                const layerId = layer.target.id;
+                map.setStyle('mapbox://styles/' + layerId + '?optimize=true');
+            };
+        }
         // Drawing Related
         const draw = new MapboxDraw({
             displayControlsDefault: true,
@@ -152,7 +195,7 @@
                     map.removeSource('iso');
                     Isochrone_lon = 0;
                     Isochrone_lat = 0
-                    
+
                 } else {
                     var {lng, lat} = map.getCenter(); // Access longitude and latitude values directly.
                     
