@@ -110,7 +110,7 @@
         const map = new mapboxgl.Map({
             container: 'map', // container ID
             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-            style: 'mapbox://styles/wnkk/cljzbz48b006w01o8fv3a0qqy?optimize=true', // style URL 
+            style: 'mapbox://styles/wnkk/cljzbz48b006w01o8fv3a0qqy', // style URL 
             center: [114.089536, 22.352856], // starting position [lng, lat]
             zoom: 10.37, // starting zoom
             hash: true //zoom lat lon appear
@@ -122,7 +122,7 @@
         for (const input of inputs) {
             input.onclick = (layer) => {
                 const layerId = layer.target.id;
-                map.setStyle('mapbox://styles/' + layerId + '?optimize=true');
+                map.setStyle('mapbox://styles/' + layerId);
             };
         }
         // Drawing Related
