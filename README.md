@@ -1,7 +1,5 @@
 [![Support Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 
-[![pages-build-deployment](https://github.com/KHwong12/OZP_buffer_stat/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/KHwong12/OZP_buffer_stat/actions/workflows/pages/pages-build-deployment)
-
 # Github Page
 https://wnkk256.github.io/ENJO_MAP/
 
