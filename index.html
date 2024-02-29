@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Experimental Network Joint Open-source Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- Deck gl -->
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <!-- Maplibre dependencies -->
+    <script src='https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css' rel='stylesheet' />
+    <!-- OpenLayer Library (recommended download the library from openlayers.org for production) -->
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+    <script src='https://code.jquery.com/jquery-1.8.2.js'></script>
     <!-- Import Github Fork Ribbon CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
     <!-- Import Mapbox GL JS  -->
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
     <!-- Mapbox botton style -->
     <link href="https://www.mapbox.com/base/latest/base.css" rel="stylesheet">
     <!-- mapbox-gl-directions OD route -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css"
+        type="text/css">
     <!-- Export map -->
     <link href='https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.css' rel='stylesheet' />
     <script src="https://watergis.github.io/mapbox-gl-export/mapbox-gl-export.js"></script>
@@ -22,62 +37,301 @@
     <script src='mapbox-gl-traffic.js'></script>
     <!-- Drawing Related Mapbox draw, turf -->
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.css" type="text/css">
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css"
+        type="text/css">
+    <!-- OpenLayer Library (recommended download the library from openlayers.org for production) -->
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+    <script src='https://code.jquery.com/jquery-1.8.2.js'></script>
     <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        #reset {position: absolute;bottom: 180px;left: 10px;z-index: 999;} /*Reset Button */
-        #directions_onoff {position: absolute;bottom: 20px;right: 10px;z-index: 999;} /*Directional API on/off Button */
-        #isochrone_onoff {position: absolute;bottom: 50px;right: 10px;z-index: 999;} /*Directional API on/off Button */
+        body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            /* margin: 0;
+            padding: 0; */
+        }
+
+        #map {
+            position: absolute;
+            top: 10px;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /*Reset Button */
+        #reset {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            z-index: 999;
+        }
+
+        /*Directional API on/off Button */
+        #directions_onoff {
+            position: absolute;
+            bottom: 20px;
+            right: 10px;
+            z-index: 999;
+        }
+
+        /*isochrone API on/off Button */
+        #Isochrone_onoff {
+            position: absolute;
+            bottom: 50px;
+            right: 10px;
+            z-index: 999;
+        }
+
+        /* Fork Me Github style */
+        .github-fork-ribbon:before {
+            background-color: #ff0000;
+        }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            filter: alpha(opacity=70);
+            -moz-opacity: 0.7;
+            -khtml-opacity: 0.7;
+            opacity: 0.7;
+            z-index: 100;
+            display: none;
+        }
+
+        .popup-content {
+            padding: 5px 5px;
+            line-height: 1;
+        }
+
+        .cnt223 a {
+            text-decoration: none;
+        }
+
+        .popup-onload {
+            margin: 0 auto;
+            display: none;
+            position: fixed;
+            z-index: 101;
+            top: 0%;
+            left: 50%;
+            /* margin-top: 400px; */
+            margin-left: -400px;
+            overflow: auto;
+        }
+
+        .cnt223 {
+            min-width: 600px;
+            width: 600px;
+            min-height: 150px;
+            height: 600px;
+            margin: 10px auto;
+            background: #e0e0e0;
+            position: relative;
+            z-index: 103;
+            padding: 10px 30px;
+            border-radius: 0px;
+            box-shadow: 0 2px 5px #000;
+            overflow: auto;
+        }
+
+        .cnt223 p {
+            clear: both;
+            color: #555555;
+            /* text-align: justify; */
+            font-size: 12px;
+            font-family: sans-serif;
+        }
+
+        .cnt223 p a {
+            color: #d91900;
+            font-weight: bold;
+        }
+
+        .cnt223 .x {
+            float: right;
+            height: 30px;
+            left: 20px;
+            position: relative;
+            top: -20px;
+            width: 30px;
+        }
+
+        .cnt223 .x:hover {
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
     <!-- Fork Me Github -->
-    <a class="github-fork-ribbon left-top" href="https://github.com/WNKK256/ENJO_MAP" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+    <a class="github-fork-ribbon left-top" href="https://github.com/WNKK256/ENJO_MAP" data-ribbon="Fork me on GitHub"
+        title="Fork me on GitHub">Fork me on GitHub</a>
     <!-- Reset Button -->
     <a href="#" id="reset" class="button fill-darken1">Reset</a>
 
-    <!-- Fork Me Github style -->
-    <style>.github-fork-ribbon:before { background-color: #ff0000; }</style>
     <!-- Drawing Related style-->
     <style>
         .calculation-box {
-        height:100px;
-        width: 280px;
-        position: absolute;
-        bottom: 70px;
-        left: 10px;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 15px;
-        text-align: center;
+            height: 80px;
+            width: 180px;
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            text-align: center;
+            z-index: 998;
         }
-         
+
         p {
-        font-family: 'Open Sans';
-        margin: 0;
-        font-size: 15px;
+            font-family: 'Open Sans';
+            margin: 0;
+            font-size: 12px;
         }
     </style>
     <!-- Switch style box -->
     <style>
         #menu {
-        position: absolute;
-        top:0%;
-        Width:100%;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 10px;
-        text-align: center;
-        font-family: 'Open Sans', sans-serif;
+            position: absolute;
+            top: 0%;
+            /* Width: 100%; */
+            right: 50px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+            z-index: 100;
         }
-        </style>
+    </style>
 
     <!-- Create a container for the map -->
-    <div id="map"></div>
+    <div id="map">
+        <div class='popup-onload'>
+            <div class='cnt223'>
+                <div class="popup-content">
+                    <h2>Welcome to ENJO MAP!</h2>
+                    <p>Experimental Network Joint Open-source Map (ENJO-MAP)</p>
+                    <h3>Disclaimer for ENJO MAP</h3>
+                    <p>If you require any more information or have any questions about our site's disclaimer, please
+                        feel free to contact us by email at enjomapoverseer@gmail.com.<br>
+                        All the information on this website is published in good faith and for general information
+                        purpose only. ENJO MAP does not make any warranties about the completeness, reliability and
+                        accuracy of this information. Any action you take upon the information you find on this website
+                        (https://wnkk256.github.io/ENJO_MAP/), is strictly at your own risk. We will not be liable for
+                        any losses and/or damages in connection with the use of our website.<br>
+                        From our website, you can visit other websites by following hyperlinks to such external sites.
+                        While we strive to provide only quality links to useful and ethical websites, we have no control
+                        over the content and nature of these sites. These links to other websites do not imply a
+                        recommendation for all the content found on these sites. Site owners and content may change
+                        without notice and may occur before we have the opportunity to remove a link which may have gone
+                        ‘bad'.<br>
+                        Please be also aware that when you leave our website, other sites may have different privacy
+                        policies and terms which are beyond our control. Please be sure to check the Privacy Policies of
+                        these sites as well as their "Terms of Service" before engaging in any business or uploading any
+                        information.</p>
+                    <h3>Consent</h3>
+                    <p>By using our website, you hereby consent to our disclaimer and agree to its terms.</p>
+                    <h3>Update</h3>
+                    <p>Should we update, amend or make any changes to this document, those changes will be prominently
+                        posted here.</p>
+                    <h2>Privacy Policy for ENJO MAP</h2>
+                    <p>At ENJO MAP, accessible at https://wnkk256.github.io/ENJO_MAP/, one of our main priorities is the
+                        privacy of our visitors. This Privacy Policy document contains types of information that is
+                        collected and recorded by ENJO MAP and how we use it.
+                        If you have additional questions or require more information about our Privacy Policy, do not
+                        hesitate to contact us through email at enjomapoverseer@gmail.com
+                        This privacy policy applies only to our online activities and is valid for visitors to our
+                        website with regards to the information that they shared and/or collect in ENJO MAP. This policy
+                        is not applicable to any information collected offline or via channels other than this website.
+                    </p>
+                    <h3>Consent</h3>
+                    <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
+                    <h3>Information we collect</h3>
+                    <p>The personal information that you are asked to provide, and the reasons why you are asked to
+                        provide it, will be made clear to you at the point we ask you to provide your personal
+                        information.<br>
+                        If you contact us directly, we may receive additional information about you such as your name,
+                        email address, phone number, the contents of the message and/or attachments you may send us, and
+                        any other information you may choose to provide.</p>
+                    When you register for an Account, we may ask for your contact information, including items such as
+                    name, company name, address, email address, and telephone number.</p>
+                    <h3>How we use your information</h3>
+                    <p>We use the information we collect in various ways, including to:<br>
+                        • Provide, operate, and maintain our website<br>
+                        • Improve, personalize, and expand our website<br>
+                        • Understand and analyze how you use our website<br>
+                        • Develop new products, services, features, and functionality<br>
+                        • Communicate with you, either directly or through one of our partners, including for customer
+                        service, to provide you with updates and other information relating to the website, and for
+                        marketing and promotional purposes<br>
+                        • Send you emails<br>
+                        • Find and prevent fraud<br>
+                    </p>
+                    <h3>Log Files</h3>
+                    <p>ENJO MAP follows a standard procedure of using log files. These files log visitors when they
+                        visit websites. All hosting companies do this and a part of hosting services' analytics. The
+                        information collected by log files include internet protocol (IP) addresses, browser type,
+                        Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the
+                        number of clicks. These are not linked to any information that is personally identifiable. The
+                        purpose of the information is for analyzing trends, administering the site, tracking users'
+                        movement on the website, and gathering demographic information.</p>
+
+                    <h3>Cookies and Web Beacons</h3>
+                    <p>Like any other website, ENJO MAP uses ‘cookies'. These cookies are used to store information
+                        including visitors' preferences, and the pages on the website that the visitor accessed or
+                        visited. The information is used to optimize the users' experience by customizing our web page
+                        content based on visitors' browser type and/or other information.</p>
+                    <h3>DoubleClick DART Cookie</h3>
+                    <p>Google is one of a third-party vendor on our site. It also uses cookies, known as DART cookies,
+                        to serve ads to our site visitors based upon their visit to ENJO MAP and other sites on the
+                        internet. However, visitors may choose to decline the use of DART cookies by visiting the Google
+                        ad and content network Privacy Policy at the following URL –
+                        https://policies.google.com/technologies/ads.<br>
+                        Some of advertisers on our site may use cookies and web beacons. Our advertising partners are
+                        listed below. Each of our advertising partners has their own Privacy Policy for their policies
+                        on user data. For easier access, we hyperlinked to their Privacy Policies below.<br>
+                        • Google : https://policies.google.com/technologies/ads</p>
+                    <h3>Advertising Partners Privacy Policies</h3>
+                    <p>You may consult this list to find the Privacy Policy for each of the advertising partners of ENJO
+                        MAP.
+                        Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons
+                        that are used in their respective advertisements and links that appear on ENJO MAP, which are
+                        sent directly to users' browser. They automatically receive your IP address when this occurs.
+                        These technologies are used to measure the effectiveness of their advertising campaigns and/or
+                        to personalize the advertising content that you see on websites that you visit.
+                        Note that ENJO MAP has no access to or control over these cookies that are used by third-party
+                        advertisers.
+                    </p>
+                    <h3>Third-Party Privacy Policies</h3>
+                    <p>ENJO MAP's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising
+                        you to consult the respective Privacy Policies of these third-party ad servers for more detailed
+                        information. It may include their practices and instructions about how to opt-out of certain
+                        options.<br>
+                        You can choose to disable cookies through your individual browser options.
+                    </p>
+                    <h3>Source of Map Data</h3>
+                    <p>The source of map data are listed below:<br>
+                        • Common Spatial Data Infrastructure (CSDI) : https://www.csdi.gov.hk/<br>
+                        • DATA.GOV.HK : https://data.gov.hk/en/<br><br><br></p>
+                    <a href='' class='close'>I have read and agreed to the above disclaimer and privacy policy. </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="menu">
-        <input id="wnkk/cljzbz48b006w01o8fv3a0qqy" type="radio" name="rtoggle" value="ENJO-Map" checked="checked">
-        <label for="wnkk/cljzbz48b006w01o8fv3a0qqy">ENJO-MAP</label>
+        <input id="wnkk/clqw4ldj9011a01nw9h9e5dk2" type="radio" name="rtoggle" value="ENJO-Map" checked="checked">
+        <label for="wnkk/clqw4ldj9011a01nw9h9e5dk2">ENJO-MAP</label>
         <!-- See a list of Mapbox-hosted public styles at -->
         <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
         <input id="mapbox/satellite-streets-v12" type="radio" name="rtoggle" value="satellite">
@@ -90,7 +344,7 @@
         <label for="mapbox/streets-v12">streets</label>
         <input id="mapbox/outdoors-v12" type="radio" name="rtoggle" value="outdoors">
         <label for="mapbox/outdoors-v12">outdoors</label>
-        </div>
+    </div>
     <div id='directions_onoff'>On / Off directions</div> <!-- Directional API on/off -->
     <div id='isochrone_onoff'>On / Off isochrone</div> <!-- Isochrone API on/off -->
 
@@ -100,25 +354,70 @@
         <div id="calculated-area-distance"></div>
     </div>
 
+    <!-- layer on off -->
+    <style>
+        #menu2 {
+            background: #fff;
+            position: absolute;
+            z-index: 1;
+            top: 35px;
+            right: 50px;
+            border-radius: 3px;
+            width: 130px;
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        #menu2 layerswitch {
+            font-size: 11px;
+            color: #404040;
+            display: block;
+            margin: 0;
+            padding: 0;
+            padding: 3px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+            text-align: left;
+        }
+
+        #menu2 layerswitch:last-child {
+            border: none;
+        }
+
+        #menu2 layerswitch:hover {
+            background-color: #f8f8f8;
+            color: #404040;
+        }
+
+        #menu2 layerswitch.active {
+            background-color: #3887be;
+            color: #ffffff;
+        }
+
+        #menu2 layerswitch.active:hover {
+            background: #3074a4;
+        }
+    </style>
+    <nav id="menu2"></nav>
+
     <script>
         // Reset Botton
         document.getElementById('reset').onclick = clearMap;
 
         // Add your Mapbox access token
         mapboxgl.accessToken = 'pk.eyJ1Ijoid25rayIsImEiOiJjbGlkemh1cHcwaDFrM2xxZjBoaHpiOHE2In0.T6oRN-g_-BlLaYFTpSjGQQ';
-        
+
         const map = new mapboxgl.Map({
-            container: 'map', // container ID
-            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-            style: 'mapbox://styles/wnkk/cljzbz48b006w01o8fv3a0qqy', // style URL 
-            center: [114.089536, 22.352856], // starting position [lng, lat]
-            zoom: 10.37, // starting zoom
-            hash: true //zoom lat lon appear
+            container: document.body,
+            style: 'mapbox://styles/wnkk/clqw4ldj9011a01nw9h9e5dk2',
+            center: [114.089536, 22.352856],
+            zoom: 10.37,
+            // pitch: 30
         });
 
         const layerList = document.getElementById('menu');
         const inputs = layerList.getElementsByTagName('input');
-        
+
         for (const input of inputs) {
             input.onclick = (layer) => {
                 const layerId = layer.target.id;
@@ -130,17 +429,17 @@
             displayControlsDefault: true,
         });
         map.addControl(draw);
- 
+
         map.on('draw.create', updateArea);
         map.on('draw.delete', updateArea);
         map.on('draw.update', updateArea);
-        
+
         function updateArea(e) {
             const data = draw.getAll();
             const answer = document.getElementById('calculated-area-distance');
             if (data.features.length > 0) {
                 const area = turf.area(data);
-                const distance = turf.length(data, {units: 'kilometers'});
+                const distance = turf.length(data, { units: 'kilometers' });
                 // Restrict the area to 2 decimal points.
                 const rounded_area = Math.round(area * 100) / 100;
                 const distance_cal = distance * 1000;
@@ -151,12 +450,13 @@
                     alert('Click the map to draw a polygon.');
             }
         }
-            
+
+        // map.addControl(deckOverlay);
         // Add zoom and rotation controls to the map.
         map.addControl(new mapboxgl.NavigationControl());
 
         // Add a scale control to the map
-        map.addControl(new mapboxgl.ScaleControl());
+        map.addControl(new mapboxgl.ScaleControl({ maxWidth: 200 }));
 
         //Add full screen control
         map.addControl(new mapboxgl.FullscreenControl());
@@ -174,20 +474,19 @@
             PrintableArea: true,
         }), 'top-right');
 
-
         //Add Isochrone API
-        
-        map.on('load', function(){
+
+        map.on('load', function () {
             var Isochrone_lon = 0;
             var Isochrone_lat = 0;
-            
+
             const marker = new mapboxgl.Marker({
-            'color': '#314ccd'
+                'color': '#314ccd'
             });
 
             var isochronelement = document.getElementById("isochrone_onoff")
-            
-            isochronelement.addEventListener('click', function(){
+
+            isochronelement.addEventListener('click', function () {
                 if (map.getLayer("isoLayer")) {
 
                     marker.remove();
@@ -197,12 +496,12 @@
                     Isochrone_lat = 0
 
                 } else {
-                    var {lng, lat} = map.getCenter(); // Access longitude and latitude values directly.
-                    
+                    var { lng, lat } = map.getCenter(); // Access longitude and latitude values directly.
+
                     // Create variables to use in getIso()
                     const urlBase = 'https://api.mapbox.com/isochrone/v1/mapbox/';
-                    Isochrone_lat =  lat;
-                    Isochrone_lon =  lng;
+                    Isochrone_lat = lat;
+                    Isochrone_lon = lng;
                     let profile = 'driving';
                     // let minutes = 15;
 
@@ -230,7 +529,7 @@
                             'features': []
                         }
                     });
-                    
+
                     map.addLayer(
                         {
                             'id': 'isoLayer',
@@ -243,11 +542,11 @@
                             }
                         },
                         'poi-label'
-                        );
-                        
+                    );
+
                     // Initialize the marker at the query coordinates
                     marker.setLngLat(LngLat).addTo(map);
-                    
+
                     // Make the API call
                     getIso();
                 }
@@ -255,8 +554,8 @@
         });
 
         //Add navigation directions OD route
-        map.on('load', function(){
-            
+        map.on('load', function () {
+
             var directions = new MapboxDirections({
                 accessToken: mapboxgl.accessToken,
                 unit: 'metric',
@@ -264,11 +563,11 @@
 
             var directionsElement = document.getElementById("directions_onoff")
 
-            directionsElement.addEventListener('click', function(){
+            directionsElement.addEventListener('click', function () {
                 if (document.getElementsByClassName('mapboxgl-ctrl-directions').length == 0) {
-                    map.addControl(directions,'top-left');
+                    map.addControl(directions, 'top-left');
                 } else {
-                    map.removeControl(directions,'top-left');
+                    map.removeControl(directions, 'top-left');
                 }
             });
         });
@@ -279,7 +578,78 @@
             updateArea()
         }
 
+        // toggleLayer
+
+        function toggleLayer(ids, name) {
+            var link = document.createElement('layerswitch');
+            link.href = '#';
+            link.className = 'active';
+            link.textContent = name;
+
+            link.onclick = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                for (layers in ids) {
+
+                    var visibility = map.getLayoutProperty(ids[layers], 'visibility');
+                    if ((visibility != 'visible') && (visibility != 'none')) {
+                        map.setLayoutProperty(ids[layers], 'visibility', 'visible');
+                    }
+
+                    var visibility = map.getLayoutProperty(ids[layers], 'visibility');
+                    if (visibility === 'visible') {
+                        map.setLayoutProperty(ids[layers], 'visibility', 'none');
+                        this.className = '';
+                    } else {
+                        this.className = 'active';
+                        map.setLayoutProperty(ids[layers], 'visibility', 'visible');
+                    }
+                }
+
+            };
+
+            var layers = document.getElementById('menu2');
+            layers.appendChild(link);
+        }
+
+        // Add layer on off buttom
+        map.on('load', function () {
+            // Set up the corresponding toggle button for each layer.
+            toggleLayer(['Polygon_Building_B_3D', 'Polygon_Building_P_3D'], '3D_Buildings');
+            toggleLayer(['Point_RD_MARK_SYM_PT_T', 'Line_TRAAIDS_DTAD_RD_MARK_LINE_C_T', 'TRAAIDS_DTAD_RAILING_LINE_T', 'Line_TRA_General_T'], 'RefText_TrafficAids');
+            toggleLayer(['polygon_iB5000_PedNBikePoly_AS_T', 'polygon_iB5000_RoadPoly_AS_T', 'polygon_iB5000_RoadPoly_FLY_T', 'polygon_iB5000_PedNBikePoly_OG_T',
+                'polygon_iB5000_RoadPoly_OG_T', 'polygon_iB5000_RoadPoly_ROB_T', 'polygon_iB5000_PedNBikePoly_UG_T', 'polygon_iB5000_RoadPoly_UG_T', 'polygon_iB1000_TransportPolygon_T',
+                'polygon_iB1000_BuiltStructurePolygon_T', 'polygon_iB1000_UtilityPolygon_T', 'polygon_iB1000_Berm_T', 'polygon_iB1000_BMSslope_T', 'polygon_iB1000_HydroPolygon_T',
+                'polygon_iB1000_VerticalCutPolygon_T', 'polygon_iB5000_BoulderPoly_T', 'polygon_iB5000_LandCoverPoly_T'], 'RefText_iBMap');
+            toggleLayer(['Polygon_Building_B', 'Polygon_Building_P'], 'Color_Building');
+            toggleLayer(['polygon_iB5000_PedNBikePoly_AS', 'polygon_iB5000_PedNBikePoly_OG', 'polygon_iB5000_PedNBikePoly_UG'], 'Color_PedNBike');
+            toggleLayer(['polygon_iB5000_RoadPoly_AS', 'polygon_iB5000_RoadPoly_FLY', 'polygon_iB5000_RoadPoly_OG', 'polygon_iB5000_RoadPoly_ROB', 'polygon_iB5000_RoadPoly_UG'], 'Color_Road');
+            toggleLayer(['Mapbox_rail_poly_Z17', 'Line_iB5000_RailLine', 'Mapbox_rail_poly_Z15', 'Mapbox_rail_line', 'Point_iB1000_RailwayEntrance'], 'Color_RailStationNLine');
+            toggleLayer(['polygon_iB1000_TransportPolygon', 'polygon_iB1000_RailwayPolygon', 'polygon_iB5000_RailPoly_OG', 'polygon_iB1000_BuiltStructurePolygon', 'polygon_iB1000_UtilityPolygon', 'polygon_iB1000_Berm',
+                'polygon_iB1000_BMSslope', 'polygon_iB1000_HydroPolygon', 'polygon_iB1000_VerticalCutPolygon', 'polygon_iB5000_BoulderPoly', 'polygon_iB5000_LandCoverPoly', 'polygon_iB5000_ContourPoly'], 'Color_iBMap');
+            toggleLayer(['background_white'], 'White_Background');
+        });
+
+        // overlay
+        $(function () {
+            var overlay = $('<div id="overlay"></div>');
+            overlay.show();
+            overlay.appendTo(document.body);
+            $('.popup-onload').show();
+            $('.close').click(function () {
+                $('.popup-onload').hide();
+                overlay.appendTo(document.body).remove();
+                return false;
+            });
+
+            $('.x').click(function () {
+                $('.popup').hide();
+                overlay.appendTo(document.body).remove();
+                return false;
+            });
+        });
     </script>
 
 </body>
+
 </html>
